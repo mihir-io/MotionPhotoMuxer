@@ -2,7 +2,8 @@ import argparse
 import logging
 import os
 import sys
-from os.path import exists, basename, isfile, join
+from os.path import exists, basename
+
 import pyexiv2
 
 
