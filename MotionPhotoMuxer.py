@@ -2,7 +2,7 @@ import argparse
 import logging
 import os
 import sys
-from os.path import exists, basename
+from os.path import exists, basename, isfile, join
 import pyexiv2
 
 
@@ -53,21 +53,29 @@ def add_xmp_metadata(merged_file, offset):
     logging.info("Found XMP keys: " + str(metadata.xmp_keys))
     if len(metadata.xmp_keys) > 0:
         logging.warning("Found existing XMP keys. They *may* be affected after this process.")
-    pyexiv2.xmp.register_namespace('http://ns.google.com/photos/1.0/camera/', 'GCamera')
+
+    # (py)exiv2 raises an exception here on basically all my 'test' iPhone 13 photos -- I'm not sure why,
+    # but it seems safe to ignore so far. It's logged anyways just in case.
+    try:
+        pyexiv2.xmp.register_namespace('http://ns.google.com/photos/1.0/camera/', 'GCamera')
+    except KeyError:
+        logging.warning("exiv2 detected that the GCamera namespace already exists.".format(merged_file))
     metadata['Xmp.GCamera.MicroVideo'] = pyexiv2.XmpTag('Xmp.GCamera.MicroVideo', 1)
     metadata['Xmp.GCamera.MicroVideoVersion'] = pyexiv2.XmpTag('Xmp.GCamera.MicroVideoVersion', 1)
     metadata['Xmp.GCamera.MicroVideoOffset'] = pyexiv2.XmpTag('Xmp.GCamera.MicroVideoOffset', offset)
     metadata['Xmp.GCamera.MicroVideoPresentationTimestampUs'] = pyexiv2.XmpTag(
         'Xmp.GCamera.MicroVideoPresentationTimestampUs',
-        10)  # Not really sure what this field means, but this was the value in a reference image I found.
+        1500000)  # in Apple Live Photos, the chosen photo is 1.5s after the start of the video, so 1500000 microseconds
     metadata.write()
 
 
-def main(args):
-    logging_level = logging.INFO if args.verbose else logging.ERROR
-    logging.basicConfig(level=logging_level, stream=sys.stdout)
-    photo_path = args.photo
-    video_path = args.video
+def convert(photo_path, video_path):
+    """
+    Performs the conversion process to mux the files together into a Google Motion Photo.
+    :param photo_path: path to the photo to merge
+    :param video_path: path to the video to merge
+    :return: None
+    """
     validate_inputs(photo_path, video_path)
 
     merged = merge_files(photo_path, video_path)
@@ -80,10 +88,70 @@ def main(args):
     add_xmp_metadata(merged, offset)
 
 
+def matching_video(photo_path):
+    base = os.path.splitext(photo_path)[0]
+    logging.info("Looking for videos named: {}".format(base))
+    if os.path.exists(base + ".mov"):
+        return base + ".mov"
+    if os.path.exists(base + ".mp4"):
+        return base + ".mp4"
+    if os.path.exists(base + ".MOV"):
+        return base + ".MOV"
+    if os.path.exists(base + ".MP4"):
+        return base + ".MP4"
+    else:
+        return ""
+
+
+def process_directory(file_dir, recurse):
+    """
+    Loops through files in the specified directory and generates a list of (photo, video) path tuples that can
+    be converted
+    :TODO: Implement recursive scan
+    :param file_dir: directory to look for photos/videos to convert
+    :param recurse: if true, subdirectories will recursively be processes
+    :return: a list of tuples containing matched photo/video pairs.
+    """
+    logging.info("Processing dir: {}".format(file_dir))
+    if recurse:
+        logging.error("Recursive traversal is not implemented yet.")
+        exit(1)
+
+    file_pairs = []
+    for file in os.listdir(file_dir):
+        file_fullpath = os.path.join(file_dir, file)
+        if os.path.isfile(file_fullpath) and file.lower().endswith(('.jpg', '.jpeg')) and matching_video(
+                file_fullpath) != "":
+            file_pairs.append((file_fullpath, matching_video(file_fullpath)))
+
+    logging.info("Found {} pairs.".format(len(file_pairs)))
+    logging.info("subset of found image/video pairs: {}".format(str(file_pairs[0:9])))
+    return file_pairs
+
+
+def main(args):
+    logging_level = logging.INFO if args.verbose else logging.ERROR
+    logging.basicConfig(level=logging_level, stream=sys.stdout)
+    logging.info("Enabled verbose logging")
+    if args.dir:
+        pairs = process_directory(args.dir, args.recurse)
+        for pair in pairs:
+            pass
+            convert(pair[0], pair[1])
+    else:
+        photo_path = args.photo
+        video_path = args.video
+        convert(photo_path, video_path)
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         description='Merges a photo and video into a Microvideo-formatted Google Motion Photo')
-    parser.add_argument('--verbose', help='Show logging messages', action='store_true')
+    parser.add_argument('--verbose', help='Show logging messages.', action='store_true')
+    parser.add_argument('--dir', type=str, help='Process a directory for photos/videos. Takes precedence over '
+                                                '--photo/--video')
+    parser.add_argument('--recurse', help='Recursively process a directory. Only applies if --dir is also provided',
+                        action='store_true')
     parser.add_argument('--photo', type=str, help='Path to the JPEG photo to add.')
     parser.add_argument('--video', type=str, help='Path to the MOV video to add.')
     main(parser.parse_args())
