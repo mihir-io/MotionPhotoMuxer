@@ -15,17 +15,37 @@ sudo apt-get install build-essential python-all-dev libexiv2-dev libboost-python
 python3 -m pip install -r requirements.txt
 ~~~
 
+## Installing on a Pixel/Android Phone
+
+> I *may* have missed a couple packages listed below, but based on the error message, it should be easy to
+see what packages are left.
+
+* Install [Termux from the F-Droid App store](https://f-droid.org/en/packages/com.termux/)
+* Install the following packages within Termux in order to satisfy the dependencies for `pyexiv2`:
+
+~~~bash
+'pkg install python3'
+'pkg install git'
+'pkg install build-essential'
+'pkg install exiv2'
+'pkg install boost'
+python3 -m pip install -r requirements.txt
+~~~
+
+This should leave you with a working copy of MotionPhotoMuxer directly on your Pixel/other Android phone.
+
 # Usage
 
 ~~~
-python MotionPhotoMuxer.py
-usage: MotionPhotoMuxer.py [-h] [--verbose] [--photo PHOTO] [--video VIDEO]
+usage: MotionPhotoMuxer.py [-h] [--verbose] [--dir DIR] [--recurse] [--photo PHOTO] [--video VIDEO]
 
 Merges a photo and video into a Microvideo-formatted Google Motion Photo
 
 optional arguments:
   -h, --help     show this help message and exit
-  --verbose      Show logging messages
+  --verbose      Show logging messages.
+  --dir DIR      Process a directory for photos/videos. Takes precedence over --photo/--video
+  --recurse      Recursively process a directory. Only applies if --dir is also provided
   --photo PHOTO  Path to the JPEG photo to add.
   --video VIDEO  Path to the MOV video to add.
 ~~~
