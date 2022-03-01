@@ -11,7 +11,7 @@ this requires building a C++ library to install, so you need to install a C++ to
 Using Ubuntu as an example:
 
 ~~~bash
-sudo apt-get install build-essential python-all-dev libexiv2-dev libboost-python-dev python3 python3-venv
+sudo apt-get install build-essential python-all-dev libexiv2-dev libboost-python-dev python3 python3-pip python3-venv
 python3 -m pip install -r requirements.txt
 ~~~
 
