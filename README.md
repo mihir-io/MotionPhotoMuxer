@@ -10,7 +10,7 @@ This fork uses only 1 dependency 'pyexiv2' instead of 'py3exiv2' since it's way 
 
 Install Python (might need to install the 64 bit version)
 ~~~
-pip install pyexiv2
+pip install -r requirements.txt
 ~~~
 
 # Usage
