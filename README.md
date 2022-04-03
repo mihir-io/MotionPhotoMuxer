@@ -9,6 +9,7 @@ This fork uses only 1 dependency 'pyexiv2' instead of 'py3exiv2' since it's way 
 
 
 Install Python (might need to install the 64 bit version)
+
 Install Microsoft Visual C++ https://visualstudio.microsoft.com/downloads/#microsoft-visual-c-redistributable-for-visual-studio-2019
 ~~~
 pip install pyexiv2
