@@ -1,38 +1,21 @@
 MotionPhotoMuxer
 ================
 
-Convert Apple Live Photos into Google Motion Photos commonly found on Android phones.
+Convert Apple Live Photos into Google Motion Photos commonly found on Android phones. This fork is meant for Windows use only.
 
-# Installation
+# Windows Installation
+
+This fork uses dependency 'pyexiv2' instead since it's way easier to install on Windows. https://github.com/LeoHsiao1/pyexiv2
 
 As of right now, this script only has one dependency, `py3exiv2`. Unfortunately
 this requires building a C++ library to install, so you need to install a C++ toolchain.
 
-Using Ubuntu as an example:
 
-~~~bash
-sudo apt-get install build-essential python-all-dev libexiv2-dev libboost-python-dev python3 python3-pip python3-venv
-python3 -m pip install -r requirements.txt
-~~~
+## Installing on Windows
 
-## Installing on a Pixel/Android Phone
+Install Python (might need to install the 64 bit version)
+pip install pyexiv2
 
-> I *may* have missed a couple packages listed below, but based on the error message, it should be easy to
-see what packages are left.
-
-* Install [Termux from the F-Droid App store](https://f-droid.org/en/packages/com.termux/)
-* Install the following packages within Termux in order to satisfy the dependencies for `pyexiv2`:
-
-~~~bash
-'pkg install python3'
-'pkg install git'
-'pkg install build-essential'
-'pkg install exiv2'
-'pkg install boost'
-python3 -m pip install -r requirements.txt
-~~~
-
-This should leave you with a working copy of MotionPhotoMuxer directly on your Pixel/other Android phone.
 
 # Usage
 
