@@ -17,14 +17,14 @@ pip install -r requirements.txt
 
 ~~~
 usage: MotionPhotoMuxer.py [-h] [--verbose] [--dir DIR] [--recurse] [--photo PHOTO] [--video VIDEO]
-
+In Command Prompt: python MotionPhotoMuxer.py [-h] [--verbose] [--dir DIR] [--recurse] [--photo PHOTO] [--video VIDEO
 Merges a photo and video into a Microvideo-formatted Google Motion Photo
 
 optional arguments:
   -h, --help     show this help message and exit
   --verbose      Show logging messages.
   --dir DIR      Process a directory for photos/videos. Takes precedence over --photo/--video
-  --recurse      Recursively process a directory. Only applies if --dir is also provided
+  --recurse      Recursively process a directory. Only applies if --dir is also provided, not working yet.
   --photo PHOTO  Path to the JPEG photo to add.
   --video VIDEO  Path to the MOV video to add.
 ~~~
