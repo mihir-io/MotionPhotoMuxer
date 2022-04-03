@@ -5,17 +5,13 @@ Convert Apple Live Photos into Google Motion Photos commonly found on Android ph
 
 # Windows Installation
 
-This fork uses dependency 'pyexiv2' instead since it's way easier to install on Windows. https://github.com/LeoHsiao1/pyexiv2
+This fork uses only 1 dependency 'pyexiv2' instead of 'py3exiv2' since it's way easier to install on Windows. https://github.com/LeoHsiao1/pyexiv2
 
-As of right now, this script only has one dependency, `py3exiv2`. Unfortunately
-this requires building a C++ library to install, so you need to install a C++ toolchain.
-
-
-## Installing on Windows
 
 Install Python (might need to install the 64 bit version)
+~~~
 pip install pyexiv2
-
+~~~
 
 # Usage
 
