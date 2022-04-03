@@ -48,26 +48,24 @@ def add_xmp_metadata(merged_file, offset):
     :param offset: The number of bytes from EOF to the beginning of the video.
     :return: None
     """
-    metadata = pyexiv2.ImageMetadata(merged_file)
+    metadata = pyexiv2.Image(merged_file)
     logging.info("Reading existing metadata from file.")
-    metadata.read()
-    logging.info("Found XMP keys: " + str(metadata.xmp_keys))
-    if len(metadata.xmp_keys) > 0:
+    metadata.read_xmp() 
+    logging.info("Found XMP keys: " + str(metadata.read_xmp()))
+    if len(metadata.read_xmp()) > 0:
         logging.warning("Found existing XMP keys. They *may* be affected after this process.")
-
     # (py)exiv2 raises an exception here on basically all my 'test' iPhone 13 photos -- I'm not sure why,
     # but it seems safe to ignore so far. It's logged anyways just in case.
     try:
-        pyexiv2.xmp.register_namespace('http://ns.google.com/photos/1.0/camera/', 'GCamera')
+        pyexiv2.registerNs('http://ns.google.com/photos/1.0/camera/', 'GCamera')
     except KeyError:
         logging.warning("exiv2 detected that the GCamera namespace already exists.".format(merged_file))
-    metadata['Xmp.GCamera.MicroVideo'] = pyexiv2.XmpTag('Xmp.GCamera.MicroVideo', 1)
-    metadata['Xmp.GCamera.MicroVideoVersion'] = pyexiv2.XmpTag('Xmp.GCamera.MicroVideoVersion', 1)
-    metadata['Xmp.GCamera.MicroVideoOffset'] = pyexiv2.XmpTag('Xmp.GCamera.MicroVideoOffset', offset)
-    metadata['Xmp.GCamera.MicroVideoPresentationTimestampUs'] = pyexiv2.XmpTag(
-        'Xmp.GCamera.MicroVideoPresentationTimestampUs',
-        1500000)  # in Apple Live Photos, the chosen photo is 1.5s after the start of the video, so 1500000 microseconds
-    metadata.write()
+
+    xmpData = {'Xmp.GCamera.Microvideo': 1, 
+               'Xmp.GCamera.MicroVideoVersion': 1, 
+               'Xmp.GCamera.MicroVideoOffset': offset, 
+               'Xmp.GCamera.MicroVideoPresentationTimestampUs':1500000} # in Apple Live Photos, the chosen photo is 1.5s after the start of the video, so 1500000 microseconds
+    metadata.modify_xmp(xmpData)
 
 
 def convert(photo_path, video_path):
