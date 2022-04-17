@@ -28,7 +28,7 @@ see what packages are left.
 'pkg install git'
 'pkg install build-essential'
 'pkg install exiv2'
-'pkg install boost'
+'pkg install boost-headers'
 python3 -m pip install -r requirements.txt
 ~~~
 
