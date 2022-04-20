@@ -37,17 +37,18 @@ This should leave you with a working copy of MotionPhotoMuxer directly on your P
 # Usage
 
 ~~~
-usage: MotionPhotoMuxer.py [-h] [--verbose] [--dir DIR] [--recurse] [--photo PHOTO] [--video VIDEO]
+usage: MotionPhotoMuxer.py [-h] [--verbose] [--dir DIR] [--recurse] [--photo PHOTO] [--video VIDEO] [--output OUTPUT]
 
 Merges a photo and video into a Microvideo-formatted Google Motion Photo
 
 optional arguments:
-  -h, --help     show this help message and exit
-  --verbose      Show logging messages.
-  --dir DIR      Process a directory for photos/videos. Takes precedence over --photo/--video
-  --recurse      Recursively process a directory. Only applies if --dir is also provided
-  --photo PHOTO  Path to the JPEG photo to add.
-  --video VIDEO  Path to the MOV video to add.
+  -h, --help       show this help message and exit
+  --verbose        Show logging messages.
+  --dir DIR        Process a directory for photos/videos. Takes precedence over --photo/--video
+  --recurse        Recursively process a directory. Only applies if --dir is also provided
+  --photo PHOTO    Path to the JPEG photo to add.
+  --video VIDEO    Path to the MOV video to add.
+  --output OUTPUT  Path to where files should be written out to.
 ~~~
 
 A JPEG photo and MOV or MP4 video must be provided. The code only does simple
