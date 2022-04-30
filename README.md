@@ -17,9 +17,6 @@ python3 -m pip install -r requirements.txt
 
 ## Installing on a Pixel/Android Phone
 
-> I *may* have missed a couple packages listed below, but based on the error message, it should be easy to
-see what packages are left.
-
 * Install [Termux from the F-Droid App store](https://f-droid.org/en/packages/com.termux/)
 * Install the following packages within Termux in order to satisfy the dependencies for `pyexiv2`:
 
