@@ -31,6 +31,10 @@ python3 -m pip install -r MotionPhotoMuxer/requirements.txt
 ~~~
 
 This should leave you with a working copy of MotionPhotoMuxer directly on your Pixel/other Android phone.
+You may want to make sure Termux has the "Storage" permission granted from within the system settings, if
+you plan on writing the output files to the `/sdcard/` partition.
+
+
 # Usage
 
 ~~~
