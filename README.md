@@ -29,11 +29,11 @@ see what packages are left.
 'pkg install build-essential'
 'pkg install exiv2'
 'pkg install boost-headers'
-python3 -m pip install -r requirements.txt
+git clone https://github.com/mihir-io/MotionPhotoMuxer.git
+python3 -m pip install -r MotionPhotoMuxer/requirements.txt
 ~~~
 
 This should leave you with a working copy of MotionPhotoMuxer directly on your Pixel/other Android phone.
-
 # Usage
 
 ~~~
