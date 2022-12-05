@@ -1,6 +1,10 @@
 MotionPhotoMuxer
 ================
 
+> **Note**
+> I've switched back to Android for the time being. I do have access to an iPhone for testing, but
+> likely won't be focusing on developing this much further.
+
 Convert Apple Live Photos into Google Motion Photos commonly found on Android phones.
 
 # Installation
@@ -56,6 +60,9 @@ A JPEG photo and MOV or MP4 video must be provided. The code only does simple
 error checking to see if the file extensions are `.jpg|.jpeg` and `.mov|.mp4`
 respectively, so if the actual photo/video encoding is something funky, things
 may not work right.
+
+> **Note**
+> The output motion photo tends to work more reliably in my experience if the input video is H.264 rather than HEVC.
 
 This has been tested successfully on a couple photos taken on an iPhone 12 and
 uploaded to Google Photos through a Pixel XL, but there hasn't been any
