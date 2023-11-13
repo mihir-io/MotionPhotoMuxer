@@ -1,6 +1,7 @@
 import argparse
 import logging
 import os
+import shutil
 import sys
 from os.path import exists, basename, isdir
 
@@ -149,9 +150,28 @@ def main(args):
     if args.dir is not None:
         validate_directory(args.dir)
         pairs = process_directory(args.dir, args.recurse)
+        procesed_files = set()
         for pair in pairs:
             if validate_media(pair[0], pair[1]):
                 convert(pair[0], pair[1], outdir)
+                procesed_files.add(pair[0])
+                procesed_files.add(pair[1])
+
+        if args.copyall:
+            # Copy the remaining files to outdir
+            all_files = set(os.path.join(args.dir, file) for file in os.listdir(args.dir))
+            remaining_files = all_files - procesed_files
+
+            logging.info("Found {} remaining files that will copied.".format(len(remaining_files)))
+
+            if len(remaining_files) > 0:
+                # Ensure the destination directory exists
+                os.makedirs(outdir, exist_ok=True)
+                
+                for file in remaining_files:
+                    file_name = os.path.basename(file)
+                    destination_path = os.path.join(outdir, file_name)
+                    shutil.copy2(file, destination_path)
     else:
         if args.photo is None and args.video is None:
             logging.error("Either --dir or --photo and --video are required.")
@@ -176,4 +196,6 @@ if __name__ == '__main__':
     parser.add_argument('--photo', type=str, help='Path to the JPEG photo to add.')
     parser.add_argument('--video', type=str, help='Path to the MOV video to add.')
     parser.add_argument('--output', type=str, help='Path to where files should be written out to.')
+    parser.add_argument('--copyall', help='Copy unpaired files to directory.', action='store_true')
+
     main(parser.parse_args())
