@@ -42,11 +42,11 @@ you plan on writing the output files to the `/sdcard/` partition.
 # Usage
 
 ~~~
-usage: MotionPhotoMuxer.py [-h] [--verbose] [--dir DIR] [--recurse] [--photo PHOTO] [--video VIDEO] [--output OUTPUT]
+usage: MotionPhotoMuxer.py [-h] [--verbose] [--dir DIR] [--recurse] [--photo PHOTO] [--video VIDEO] [--output OUTPUT] [--copyall]
 
 Merges a photo and video into a Microvideo-formatted Google Motion Photo
 
-optional arguments:
+options:
   -h, --help       show this help message and exit
   --verbose        Show logging messages.
   --dir DIR        Process a directory for photos/videos. Takes precedence over --photo/--video
@@ -54,6 +54,7 @@ optional arguments:
   --photo PHOTO    Path to the JPEG photo to add.
   --video VIDEO    Path to the MOV video to add.
   --output OUTPUT  Path to where files should be written out to.
+  --copyall        Copy unpaired files to directory.
 ~~~
 
 A JPEG photo and MOV or MP4 video must be provided. The code only does simple
