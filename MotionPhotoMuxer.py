@@ -115,18 +115,15 @@ def process_directory(file_dir: Path, recurse: bool):
     """
     Loops through files in the specified directory and generates a list of (photo, video) path tuples that can
     be converted
-    :TODO: Implement recursive scan
     :param file_dir: directory to look for photos/videos to convert
     :param recurse: if true, subdirectories will recursively be processes
     :return: a list of tuples containing matched photo/video pairs.
     """
     logging.info("Processing dir: {}".format(file_dir))
-    if recurse:
-        logging.error("Recursive traversal is not implemented yet.")
-        exit(1)
 
     file_pairs = []
-    for file in file_dir.iterdir():
+    files = file_dir.rglob("*") if recurse else file_dir.iterdir()
+    for file in files:
         if file.is_file() and file.suffix.lower() in ['.jpg', '.jpeg'] and matching_video(file) != Path(""):
             file_pairs.append((file, matching_video(file)))
 
