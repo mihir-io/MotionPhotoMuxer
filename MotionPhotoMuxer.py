@@ -105,7 +105,6 @@ def matching_video(photo_path: Path) -> Path:
     files = set(glob.glob(base + ".*"))
     print
     for ext in (".mov", ".mp4", ".MOV", ".MP4"):
-        print("DEBUG: " + base + ext)
         if base + ext in files:
             return Path(base + ext)
     else:
