@@ -1,23 +1,22 @@
 import argparse
 import logging
-import os
 import shutil
 import sys
-from os.path import exists, basename, isdir
+from pathlib import Path
 import glob
 
 import pyexiv2
 
-def validate_directory(dir):
+def validate_directory(dir: Path):
     
-    if not exists(dir):
+    if not dir.exists():
         logging.error("Path doesn't exist: {}".format(dir))
         exit(1)
-    if not isdir(dir):
+    if not dir.is_dir():
         logging.error("Path is not a directory: {}".format(dir))
         exit(1)
 
-def validate_media(photo_path, video_path):
+def validate_media(photo_path: Path, video_path: Path):
     """
     Checks if the files provided are valid inputs. Currently the only supported inputs are MP4/MOV and JPEG filetypes.
     Currently it only checks file extensions instead of actually checking file formats via file signature bytes.
@@ -25,21 +24,21 @@ def validate_media(photo_path, video_path):
     :param video_path: path to the video file
     :return: True if photo and video files are valid, else False
     """
-    if not exists(photo_path):
+    if not photo_path.exists():
         logging.error("Photo does not exist: {}".format(photo_path))
         return False
-    if not exists(video_path):
+    if not video_path.exists():
         logging.error("Video does not exist: {}".format(video_path))
         return False
-    if not photo_path.lower().endswith(('.jpg', '.jpeg')):
+    if not photo_path.suffix.lower() in ['.jpg', '.jpeg']:
         logging.error("Photo isn't a JPEG: {}".format(photo_path))
         return False
-    if not video_path.lower().endswith(('.mov', '.mp4')):
+    if not video_path.suffix.lower() in ['.mov', '.mp4']:
         logging.error("Video isn't a MOV or MP4: {}".format(photo_path))
         return False
     return True
 
-def merge_files(photo_path, video_path, output_path):
+def merge_files(photo_path: Path, video_path: Path, output_path: Path) -> Path:
     """Merges the photo and video file together by concatenating the video at the end of the photo. Writes the output to
     a temporary folder.
     :param photo_path: Path to the photo
@@ -47,8 +46,8 @@ def merge_files(photo_path, video_path, output_path):
     :return: File name of the merged output file
     """
     logging.info("Merging {} and {}.".format(photo_path, video_path))
-    out_path = os.path.join(output_path, "{}".format(basename(photo_path)))
-    os.makedirs(os.path.dirname(out_path), exist_ok=True)
+    out_path = output_path / photo_path.name
+    out_path.parent.mkdir(parents=True, exist_ok=True)
     with open(out_path, "wb") as outfile, open(photo_path, "rb") as photo, open(video_path, "rb") as video:
         outfile.write(photo.read())
         outfile.write(video.read())
@@ -56,13 +55,13 @@ def merge_files(photo_path, video_path, output_path):
     return out_path
 
 
-def add_xmp_metadata(merged_file, offset):
+def add_xmp_metadata(merged_file: Path, offset: int):
     """Adds XMP metadata to the merged image indicating the byte offset in the file where the video begins.
     :param merged_file: The path to the file that has the photo and video merged together.
     :param offset: The number of bytes from EOF to the beginning of the video.
     :return: None
     """
-    metadata = pyexiv2.ImageMetadata(merged_file)
+    metadata = pyexiv2.ImageMetadata(str(merged_file.resolve()))
     logging.info("Reading existing metadata from file.")
     metadata.read()
     logging.info("Found XMP keys: " + str(metadata.xmp_keys))
@@ -84,7 +83,7 @@ def add_xmp_metadata(merged_file, offset):
     metadata.write()
 
 
-def convert(photo_path, video_path, output_path):
+def convert(photo_path: Path, video_path: Path, output_path: Path):
     """
     Performs the conversion process to mux the files together into a Google Motion Photo.
     :param photo_path: path to the photo to merge
@@ -92,26 +91,27 @@ def convert(photo_path, video_path, output_path):
     :return: True if conversion was successful, else False
     """
     merged = merge_files(photo_path, video_path, output_path)
-    photo_filesize = os.path.getsize(photo_path)
-    merged_filesize = os.path.getsize(merged)
+    photo_filesize = photo_path.stat().st_size
+    merged_filesize = merged.stat().st_size
 
     # The 'offset' field in the XMP metadata should be the offset (in bytes) from the end of the file to the part
     # where the video portion of the merged file begins. In other words, merged size - photo_only_size = offset.
     offset = merged_filesize - photo_filesize
     add_xmp_metadata(merged, offset)
 
-def matching_video(photo_path):
-    base = os.path.splitext(photo_path)[0]
+def matching_video(photo_path: Path) -> Path:
+    base = str(photo_path.with_suffix(""))
     logging.info("Looking for videos named: {}".format(base))
     files = set(glob.glob(base + ".*"))
+    print
     for ext in (".mov", ".mp4", ".MOV", ".MP4"):
+        print("DEBUG: " + base + ext)
         if base + ext in files:
-            return base + ext
+            return Path(base + ext)
     else:
-        return ""
+        return Path("")
 
-
-def process_directory(file_dir, recurse):
+def process_directory(file_dir: Path, recurse: bool):
     """
     Loops through files in the specified directory and generates a list of (photo, video) path tuples that can
     be converted
@@ -126,11 +126,9 @@ def process_directory(file_dir, recurse):
         exit(1)
 
     file_pairs = []
-    for file in os.listdir(file_dir):
-        file_fullpath = os.path.join(file_dir, file)
-        if os.path.isfile(file_fullpath) and file.lower().endswith(('.jpg', '.jpeg')) and matching_video(
-                file_fullpath) != "":
-            file_pairs.append((file_fullpath, matching_video(file_fullpath)))
+    for file in file_dir.iterdir():
+        if file.is_file() and file.suffix.lower() in ['.jpg', '.jpeg'] and matching_video(file) != Path(""):
+            file_pairs.append((file, matching_video(file)))
 
     logging.info("Found {} pairs.".format(len(file_pairs)))
     logging.info("subset of found image/video pairs: {}".format(str(file_pairs[0:9])))
@@ -142,7 +140,7 @@ def main(args):
     logging.basicConfig(level=logging_level, stream=sys.stdout)
     logging.info("Enabled verbose logging")
 
-    outdir = args.output if args.output is not None else "output"
+    outdir = args.output if args.output is not None else Path("output")
 
     if args.dir is not None:
         validate_directory(args.dir)
@@ -156,18 +154,18 @@ def main(args):
 
         if args.copyall:
             # Copy the remaining files to outdir
-            all_files = set(os.path.join(args.dir, file) for file in os.listdir(args.dir))
+            all_files = set(file for file in args.dir.iterdir())
             remaining_files = all_files - procesed_files
 
             logging.info("Found {} remaining files that will copied.".format(len(remaining_files)))
 
             if len(remaining_files) > 0:
                 # Ensure the destination directory exists
-                os.makedirs(outdir, exist_ok=True)
+                outdir.mkdir(parents=True, exist_ok=True)
                 
                 for file in remaining_files:
-                    file_name = os.path.basename(file)
-                    destination_path = os.path.join(outdir, file_name)
+                    file_name = file.name
+                    destination_path = outdir / file_name
                     shutil.copy2(file, destination_path)
     else:
         if args.photo is None and args.video is None:
@@ -186,13 +184,13 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         description='Merges a photo and video into a Microvideo-formatted Google Motion Photo')
     parser.add_argument('--verbose', help='Show logging messages.', action='store_true')
-    parser.add_argument('--dir', type=str, help='Process a directory for photos/videos. Takes precedence over '
+    parser.add_argument('--dir', type=Path, help='Process a directory for photos/videos. Takes precedence over '
                                                 '--photo/--video')
     parser.add_argument('--recurse', help='Recursively process a directory. Only applies if --dir is also provided',
                         action='store_true')
-    parser.add_argument('--photo', type=str, help='Path to the JPEG photo to add.')
-    parser.add_argument('--video', type=str, help='Path to the MOV video to add.')
-    parser.add_argument('--output', type=str, help='Path to where files should be written out to.')
+    parser.add_argument('--photo', type=Path, help='Path to the JPEG photo to add.')
+    parser.add_argument('--video', type=Path, help='Path to the MOV video to add.')
+    parser.add_argument('--output', type=Path, help='Path to where files should be written out to.')
     parser.add_argument('--copyall', help='Copy unpaired files to directory.', action='store_true')
 
     main(parser.parse_args())
