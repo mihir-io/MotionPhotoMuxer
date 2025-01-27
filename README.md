@@ -26,6 +26,7 @@ python3 -m pip install -r requirements.txt
 
 ~~~bash
 'pkg install python3'
+'pkg install openssl'
 'pkg install git'
 'pkg install build-essential'
 'pkg install exiv2'
