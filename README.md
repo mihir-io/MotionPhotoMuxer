@@ -18,6 +18,15 @@ Using Ubuntu as an example:
 sudo apt-get install build-essential python-all-dev libexiv2-dev libboost-python-dev python3 python3-pip python3-venv
 python3 -m pip install -r requirements.txt
 ~~~
+## Installing with docker
+
+```bash
+docker build -t motionphotomuxer .
+# Folder
+docker run --rm -v /path/to/dir:/data/input motionphotomuxer --dir /data/input --output /data/output --copyall
+# Single photo and video
+docker run --rm -v /path/to/dir:/data/input motionphotomuxer --photo /data/input/photo.jpg --video /data/input/video.mov --output /data/output
+```
 
 ## Installing on a Pixel/Android Phone
 
