@@ -3,7 +3,7 @@ name: Build and Push Docker Image
 on:
   push:
     branches:
-      - main  # or the branch you want to trigger the workflow on
+      - add-docker-build-push-action  # or the branch you want to trigger the workflow on
 
 jobs:
   build:
@@ -25,13 +25,17 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-          
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
+      - name: lowercase github.repository
+        run: |
+          echo "IMAGE_NAME=${GITHUB_REPOSITORY@L}" >> ${GITHUB_ENV}
+
       - name: Build Docker image
-        run: docker build . -t ghcr.io/${{ github.repository }}/motionphotomuxer:latest
+        run: docker build . -t ghcr.io/${{ env.IMAGE_NAME }}/motionphotomuxer:latest
 
       - name: Push Docker image
-        run: docker push ghcr.io/${{ github.repository }}/motionphotomuxer:latest
+        run: docker push ghcr.io/${{ env.IMAGE_NAME }}/motionphotomuxer:latest
  
