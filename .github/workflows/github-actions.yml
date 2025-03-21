@@ -3,7 +3,7 @@ name: Build and Push Docker Image
 on:
   push:
     branches:
-      - add-docker-build-push-action  # or the branch you want to trigger the workflow on
+      - main  # or the branch you want to trigger the workflow on
 
 jobs:
   build:
